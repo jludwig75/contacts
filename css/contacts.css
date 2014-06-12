@@ -1,0 +1,47 @@
+#contact_listing {
+	border: 0;
+	width: 30em;
+}
+
+.contact {
+	border: 0;
+	margin: 0.5em;
+	padding: 0;
+}
+
+.contact_heading {
+	border: 1px;
+	border-style: solid;
+	margin: 0;
+	padding: 0.5em;
+	display: block;
+	cursor: default;
+}
+
+.contact_details {
+	border: 1px;
+	border-top: 0;
+	border-style: solid;
+	margin: 0;
+	padding: 0.5em;
+	display: none;
+}
+
+th.detail_heading {
+	text-align: right;
+}
+
+ul {
+	margin: 0;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+    list-style-type: none;
+}
+
+.field_edit {
+	display: none;
+}
+
+.editable_field {
+	cursor: pointer;
+}

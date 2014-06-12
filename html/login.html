@@ -1,0 +1,91 @@
+<html>
+	<head>
+		
+	</head>
+	<body>
+		<div id="login">
+			<h2>Login as Existing User</h2>
+			<div id="login-messages" style="display:none">
+			</div>
+			<form>
+				<table>
+					<tr>
+						<td>
+							User Name:
+						</td>
+						<td>
+							<input id="username" type="text" name="username"><br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Password:
+						</td>
+						<td>
+							<input id="password" type="password" name="password"><br>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<input type="submit" value="Login" onclick="authenticate();return false">
+						</td>
+					</tr>
+				</table>
+			</form>
+			Not yet a user?
+			<a href="" onclick="document.getElementById('login').style.display='none';document.getElementById('signup').style.display='block';document.getElementById('new-username').focus();return false;">Sign Up</a>
+		</div>
+		<div id="signup" style="display:none">
+			<h2>Sign Up as New User</h2>
+			<div id="signup-messages" style="display:none">
+			</div>
+			<form>
+				<table>
+					<tr>
+						<td>
+							User Name:
+						</td>
+						<td>
+							<input id="new-username" type="text" name="username"><br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Password:
+						</td>
+						<td>
+							<input id="new-password" type="password" name="password"><br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Verify password:
+						</td>
+						<td>
+							<input id="new-password-verify" type="password" name="verify-password"><br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Email Address:
+						</td>
+						<td>
+							<input id="email" type="text" name="email"><br>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<input type="submit" value="Sign Up" onclick="signUp();return false">
+						</td>
+					</tr>
+				</table>
+			</form>
+			Already a user?
+			<a href="" onclick="document.getElementById('login').style.display='block';document.getElementById('signup').style.display='none';document.getElementById('username').focus();return false;">Login</a>
+		</div>
+		<script src="scripts/login.js"></script>
+		<script>
+			document.getElementById("username").focus();
+		</script>
+	</body>
+</html>
