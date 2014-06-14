@@ -1,4 +1,7 @@
 import os
+import random
+import string
+import json
 import cherrypy
 from cherrypy.lib.static import serve_file
 from model.user import *
@@ -46,16 +49,17 @@ def ClearSessionData():
     if session_data.has_key(session_id):
         del session_data[session_id]
 
+def GetUser():
+    session = GetSessionData()
+    if not session:
+        return None
+    return session.GetUser()
+
 class ContactController(object):
     
-    def GetUser(self):
-        session = GetSessionData()
-        if not session:
-            return None
-        return session.GetUser()
     
     def index(self):
-        if not self.GetUser():
+        if not GetUser():
             raise cherrypy.HTTPRedirect("/login")
         
         tmpl = lookup.get_template("index.html")
@@ -63,7 +67,7 @@ class ContactController(object):
     index.exposed = True
     
     def login(self):
-        if self.GetUser():
+        if GetUser():
             raise cherrypy.HTTPRedirect("/")
         tmpl = lookup.get_template("login.html")
         return tmpl.render()
@@ -96,11 +100,92 @@ class ContactController(object):
 
 conf = os.path.join(os.path.dirname(__file__), 'contacts.conf')
 
+
+contacts = [{'id': 1, 'lastName': "Ludwig", 'firstName': "Jonathan", 'personalEmail': "jr.ludwig@gmail.com", 'workEmail': "jludwig@fusionio.com"},
+            {'id': 2, 'lastName': "Ludwig", 'firstName': "Deneen", 'personalEmail': "deneenl@gmail.com", 'workEmail': ""}]
+
+nextContactId = 3
+
+def FindContact(id):
+    for contact in contacts:
+        if contact['id'] == id:
+            return contact 
+    return None
+    
+class StringGeneratorWebService(object):
+    exposed = True
+
+    @cherrypy.tools.accept(media='text/plain')
+    def GET(self, id=None):
+        if not GetUser():
+            raise cherrypy.HTTPRedirect("/login")
+        if id == None:
+            return json.dumps(contacts)
+        id = int(id)
+        contact = FindContact(id)
+        if not contact:
+            raise cherrypy.HTTPError(404, 'Contact ID not found')
+        return json.dumps(contact)
+
+    def POST(self, contact):
+        global nextContactId
+        if not GetUser():
+            raise cherrypy.HTTPRedirect("/login")
+        contact = json.loads(contact)
+        contact['id'] = nextContactId
+        nextContactId += 1
+        contacts.append(contact)
+        return json.dumps(contact)
+
+    def PUT(self, id, contact):
+        if not GetUser():
+            raise cherrypy.HTTPRedirect("/login")
+        id = int(id)
+        newContact = json.loads(contact)
+        contact = FindContact(id)
+        if not contact:
+            raise cherrypy.HTTPError(404, 'Contact ID not found')
+        for k, v in newContact.iteritems():
+            if k != 'id':
+                contact[k] = v
+        return json.dumps(contact)
+
+    def DELETE(self, id=None):
+        if not GetUser():
+            raise cherrypy.HTTPRedirect("/login")
+        id = int(id)
+        contact = FindContact(id)
+        if not contact:
+            raise cherrypy.HTTPError(404, 'Contact ID not found')
+        contacts.remove(contact)
+
+restConf = {
+         '/': {
+             'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+             'tools.sessions.on': True,
+             'tools.response_headers.on': True,
+             'tools.response_headers.headers': [('Content-Type', 'application/x-www-form-urlencoded')],
+             'tools.sessions.on': True,
+             'tools.sessions.storage_type': "file",
+             'tools.sessions.storage_path': "/dev/contacts/sessions",
+             'tools.sessions.timeout': 60,
+         },
+         'global': {
+             'server.ssl_module': 'builtin',
+             'server.ssl_certificate': "cert.pem",
+             'server.ssl_private_key': "privkey.pem",
+         }
+     }
+
 if __name__ == '__main__':
     # CherryPy always starts with app.root when trying to map request URIs
     # to objects, so we need to mount a request handler root. A request
     # to '/' will be mapped to HelloWorld().index().
-    cherrypy.quickstart(ContactController(), config=conf)
+    cherrypy.tree.mount(ContactController(), config=conf)
+    cherrypy.quickstart(StringGeneratorWebService(), '/contact', config=restConf)
+    
+    cherrypy.engine.start()
+    cherrypy.engine.block()
 else:
     # This branch is for the test suite; you can ignore it.
     cherrypy.tree.mount(ContactController(), config=conf)
