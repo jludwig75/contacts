@@ -45,3 +45,7 @@ ul {
 .editable_field {
 	cursor: pointer;
 }
+
+.contact_message {
+	color: red;
+}

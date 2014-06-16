@@ -133,6 +133,7 @@ function ContactEntry(contact)
 					'		' + this.contact.lastName + ', ' + this.contact.firstName + 
 					'	</div>' +
 					'	<div class="contact_details">' +
+					'   <div class="contact_message"></div>' +
 					'		<ul>';
 			
 			for(var i = 0; i < this.fields.length; i++)
@@ -172,11 +173,17 @@ function ContactEntry(contact)
 				this.contact.workEmail = fieldValue;
 				break;
 		}
-		this.contact.update();
-		this.buildFields();
-		$('#' + this.domId).html(this.renderContents());
-		this.enableEvents();
-		$('#' + this.domId + ' .contact_details').show();
+		if (!this.contact.update())
+		{
+			$('#' + this.domId + ' .contact_message').html('Failed to update contact ' + fieldName + '! Check conneciton and login.');
+		}
+		else
+		{
+			this.buildFields();
+			$('#' + this.domId).html(this.renderContents());
+			this.enableEvents();
+			$('#' + this.domId + ' .contact_details').show();
+		}
 	};
 	
 	this.buildFields = function()
@@ -225,17 +232,75 @@ function ContactList(contacts)
 	};
 }
 
-function updateContact()
+// Create			
+function addContact(contact)
 {
-	return true;
+	return false;	
 }
 
-contacts = [{id: 1, lastName: "Ludwig", firstName: "Jonathan", personalEmail: "jr.ludwig@gmail.com", workEmail: "jludwig@fusionio.com", update: updateContact},
-			{id: 2, lastName: "Ludwig", firstName: "Deneen", personalEmail: "deneenl@gmail.com", workEmail: "", update: updateContact}];
+// Retrieve
+function getContacts()
+{
+	var contacts;
+	$.ajax({
+        type: "GET",
+        url: '/contact',
+        async: false,
+        success : function(d) {
+            contacts = $.parseJSON(d);
+        }
+    });
+    for(var i = 0; i < contacts.length; i++)
+    {
+    	contacts[i].update = updateContact;
+    	contacts[i].remove = deleteContact;
+    }
+	return contacts;
+}
+
+// Update
+function updateContact()
+{
+	var success;
+	var text = 'id=' + this.id + '&contact=' + JSON.stringify(this);
+	$.ajax({
+        type: "PUT",
+        url: '/contact',
+        async: false,
+        data: text,
+        success: function(d) {
+        	success = true;
+        },
+        error: function(xhr, status, error) {
+        	success = false;
+        }
+    });
+	return success;
+}
+
+// Delete
+function deleteContact()
+{
+	var success;
+	var text = 'id=' + this.id;
+	$.ajax({
+        type: "DELETE",
+        url: '/contact',
+        async: false,
+        data: text,
+        success: function(d) {
+        	success = true;
+        },
+        error: function(xhr, status, error) {
+        	success = false;
+        }
+    });
+	return success;
+}
 
 $(document).ready(function()
 {
-	var contactList = new ContactList(contacts);
+	var contactList = new ContactList(getContacts());
 	
 	contactList.display();
 		
