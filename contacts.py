@@ -112,13 +112,13 @@ def FindContact(id):
             return contact 
     return None
     
-class StringGeneratorWebService(object):
+class ContactWebService(object):
     exposed = True
 
     @cherrypy.tools.accept(media='text/plain')
     def GET(self, id=None):
         if not GetUser():
-            raise cherrypy.HTTPRedirect("/login")
+            raise cherrypy.HTTPError(401, 'Not authorized')
         if id == None:
             return json.dumps(contacts)
         id = int(id)
@@ -130,7 +130,7 @@ class StringGeneratorWebService(object):
     def POST(self, contact):
         global nextContactId
         if not GetUser():
-            raise cherrypy.HTTPRedirect("/login")
+            raise cherrypy.HTTPError(401, 'Not authorized')
         contact = json.loads(contact)
         contact['id'] = nextContactId
         nextContactId += 1
@@ -139,7 +139,7 @@ class StringGeneratorWebService(object):
 
     def PUT(self, id, contact):
         if not GetUser():
-            raise cherrypy.HTTPRedirect("/login")
+            raise cherrypy.HTTPError(401, 'Not authorized')
         id = int(id)
         newContact = json.loads(contact)
         contact = FindContact(id)
@@ -152,7 +152,7 @@ class StringGeneratorWebService(object):
 
     def DELETE(self, id=None):
         if not GetUser():
-            raise cherrypy.HTTPRedirect("/login")
+            raise cherrypy.HTTPError(401, 'Not authorized')
         id = int(id)
         contact = FindContact(id)
         if not contact:
@@ -182,7 +182,7 @@ if __name__ == '__main__':
     # to objects, so we need to mount a request handler root. A request
     # to '/' will be mapped to HelloWorld().index().
     cherrypy.tree.mount(ContactController(), config=conf)
-    cherrypy.quickstart(StringGeneratorWebService(), '/contact', config=restConf)
+    cherrypy.quickstart(ContactWebService(), '/contact', config=restConf)
     
     cherrypy.engine.start()
     cherrypy.engine.block()
