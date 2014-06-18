@@ -235,7 +235,21 @@ function ContactList(contacts)
 // Create			
 function addContact(contact)
 {
-	return false;	
+	var success;
+	var text = 'contact=' + JSON.stringify(contact);
+	$.ajax({
+        type: "POST",
+        url: '/contact',
+        async: false,
+        data: text,
+        success: function(d) {
+        	success = true;
+        },
+        error: function(xhr, status, error) {
+        	success = false;
+        }
+    });
+	return success;
 }
 
 // Retrieve
@@ -298,14 +312,67 @@ function deleteContact()
 	return success;
 }
 
-$(document).ready(function()
+var contactList;
+
+function displayContacts()
 {
-	var contactList = new ContactList(getContacts());
+	contactList = new ContactList(getContacts());
 	
 	contactList.display();
+}
+
+function hideNewContactForm()
+{
+	$("#add_contact_div").hide();
+	$("#add_contact").show();
+}
+
+function showNewContactForm()
+{
+	$("#add_contact").hide();
+	$("#add_contact_div").show();
+}
+
+function clearNewContactForm()
+{
+	$("input[name=lastName]").val("");
+	$("input[name=firstName]").val("");
+	$("input[name=personalEmail]").val("");
+	$("input[name=workEmail]").val("");
+}
+
+function contactFromForm()
+{
+	return {
+				lastName: $("input[name=lastName]").val(),
+				firstName: $("input[name=firstName]").val(),
+				personalEmail: $("input[name=personalEmail]").val(),
+				workEmail: $("input[name=workEmail]").val(),
+			};
+}
+
+$(document).ready(function()
+{
+	displayContacts();
 		
 	$("#add_contact").click(function(){
-		alert("Add Contact: Not implemented");
+		showNewContactForm();
+	});
+	
+	$("#cancel_new_contact").click(function(){
+		hideNewContactForm();
+		return false;
+	});
+	
+	$("#add_new_contact").click(function(){
+		var contact = contactFromForm();
+		if (addContact(contact))
+		{
+        	displayContacts();
+			hideNewContactForm();
+			clearNewContactForm();
+		}
+		return false;
 	});
 });
 

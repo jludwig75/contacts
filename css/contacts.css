@@ -49,3 +49,19 @@ ul {
 .contact_message {
 	color: red;
 }
+
+#add_contact_div {
+	margin: 0;
+	padding: 0;
+	display: none;
+}
+
+#contact_list_controls {
+	margin: 0.5em;
+	padding: 0;
+}
+
+#add_contact_form {
+	margin: 0;
+	padding: 0;
+}
