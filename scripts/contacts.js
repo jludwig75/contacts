@@ -117,6 +117,18 @@ function ContactEntry(contact)
 	
 	this.enableEvents = function()
 	{
+		var that = this;
+		$('#' + this.domId + ' .delete_contact').click(function(){
+			if (confirm('Are you sure you want to delete contact "' + that.contact.firstName + ' ' + that.contact.lastName + '"?'))
+			{
+				if (that.contact.remove())
+				{
+					$("#" + that.domId).remove();
+				}
+			}
+			return false;
+		});
+		
 		$('#' + this.domId + ' .contact_heading').click(function(){
 			$(this).next().slideToggle();
 		});
@@ -130,7 +142,8 @@ function ContactEntry(contact)
 	this.renderContents = function()
 	{
 		var html =  '	<div class="contact_heading">' +
-					'		' + this.contact.lastName + ', ' + this.contact.firstName + 
+					'		' + this.contact.lastName + ', ' + this.contact.firstName +
+					'       <span style="position:absolute;right:1em"><img class="delete_contact" src="images/delete.png"></span>' + 
 					'	</div>' +
 					'	<div class="contact_details">' +
 					'   <div class="contact_message"></div>' +
@@ -296,12 +309,11 @@ function updateContact()
 function deleteContact()
 {
 	var success;
-	var text = 'id=' + this.id;
+	var path = '/contact/' + this.id;
 	$.ajax({
         type: "DELETE",
-        url: '/contact',
+        url: path,
         async: false,
-        data: text,
         success: function(d) {
         	success = true;
         },

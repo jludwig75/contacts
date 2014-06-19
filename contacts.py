@@ -150,7 +150,7 @@ class ContactWebService(object):
                 contact[k] = v
         return json.dumps(contact)
 
-    def DELETE(self, id=None):
+    def DELETE(self, id):
         if not GetUser():
             raise cherrypy.HTTPError(401, 'Not authorized')
         id = int(id)
