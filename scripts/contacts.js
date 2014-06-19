@@ -343,6 +343,7 @@ function showNewContactForm()
 {
 	$("#add_contact").hide();
 	$("#add_contact_div").show();
+	$("input[name=lastName]").focus();
 }
 
 function clearNewContactForm()
